@@ -1,0 +1,8 @@
+name: rbpnet
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - pip:
+    - fastcluster
+    - git+https://github.com/mhorlacher/rbpnet.git
