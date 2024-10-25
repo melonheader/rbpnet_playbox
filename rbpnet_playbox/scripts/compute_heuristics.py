@@ -14,12 +14,7 @@ def parse_args():
     parser.add_argument("-o", "--output-dir", type=str, default=None, help="Path to the directory to write heuristics (defaults to input directory)")
     args = parser.parse_args()
     return args
-
-def compute_heuristics(path_to_preds_dir: str, output_dir: str = None):
-    if not output_dir:
-        output_dir = path_to_preds_dir
-    results = []
-    def compute_metrics(preds, preds_id):
+def compute_metrics(preds, preds_id):
         """Computes and returns relevant metrics for RBPnet scores."""
         # subtract an average to remove noise
         preds_centered = preds - np.mean(preds)
@@ -33,13 +28,19 @@ def compute_heuristics(path_to_preds_dir: str, output_dir: str = None):
             "kurtosis": kurtosis(preds_centered)
         }
         return metrics
+def compute_heuristics(path_to_preds_dir: str, output_dir: str = None):
+    if not output_dir:
+        output_dir = path_to_preds_dir
+    results = []
     for model_out in os.listdir(path_to_preds_dir):
         if '_preds.csv' in model_out:
             with open(os.path.join(path_to_preds_dir, model_out), 'r') as file:
                 for line in file:
                     line = line.strip()
+                    if line.startswith("id"):
+                        continue
                     preds_values = np.array([float(x) for x in line.split(',')[1:]])
-                    id = line.split(',', 1)[0].split('_')[-1]
+                    id = line.split(',', 1)[0]
                     result = compute_metrics(preds_values, id)
                     results.append(result)
             rbp = model_out.replace('_preds.csv', '')
@@ -47,10 +48,11 @@ def compute_heuristics(path_to_preds_dir: str, output_dir: str = None):
             df = pd.DataFrame(results)
             results = []  
             df.to_csv(path_to_write, index=False)
+            print(f'Summarised {model_out} predictions to {rbp}_heuristics.csv')
             
 if __name__ == "__main__":
     args = parse_args()
     compute_heuristics(
-        path_to_input = args.input,
+        path_to_preds_dir = args.input,
         output_dir = args.output_dir
     )

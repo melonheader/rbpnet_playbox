@@ -47,3 +47,11 @@ optional arguments:
   -o OUTPUT_DIR, --output-dir OUTPUT_DIR
                         Path to the directory to write heuristics (defaults to input directory)
 ```
+### Main tool 
+Let's try to run RBPnet predictions on example sequence from the ```example``` folder. Given that the environment is set up and activated one would need to run:
+```bash
+## Predict STAU2 binding over the sesquence
+python -m rbpnet_playbox.scripts.rbpnet_predict -i example/test.fa -m models -r STAU2 -o example -n 2
+## Summarise heuristics from predictions
+python -m rbpnet_playbox.scripts.compute_heuristics -i example
+```
